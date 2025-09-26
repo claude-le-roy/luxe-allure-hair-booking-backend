@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { BookingCard } from '@/components/BookingCard';
 import { BookingCalendar } from '@/components/BookingCalendar';
 import { BookingSearch } from '@/components/BookingSearch';
 import { useBookings, useGroupedBookings, useSearchBookings } from '@/hooks/useBookings';
-import { Calendar, List, TrendingUp, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { Calendar, List, TrendingUp, Clock, CheckCircle, XCircle, BarChart3 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Index = () => {
   const [activeView, setActiveView] = useState<'list' | 'calendar'>('list');
@@ -60,6 +62,12 @@ const Index = () => {
               <p className="text-muted-foreground mt-1">Manage your bookings and appointments</p>
             </div>
             <div className="flex items-center gap-2">
+              <Link to="/analytics">
+                <Button variant="outline" className="flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4" />
+                  Analytics
+                </Button>
+              </Link>
               <Badge variant="secondary" className="px-3 py-1">
                 {stats.total} Total Bookings
               </Badge>
