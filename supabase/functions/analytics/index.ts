@@ -79,34 +79,42 @@ Deno.serve(async (req) => {
 
         if (error) throw error
 
-        // Filter data based on period
+        // Filter data based on period with accurate date handling
         const now = new Date()
         let startDate: Date
+        let endDate: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)
 
         switch (period) {
           case 'day':
-            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+            // Today only
+            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0)
             break
           case 'week':
-            startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+            // Last 7 days including today
+            startDate = new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000)
+            startDate.setHours(0, 0, 0, 0)
             break
           case 'month':
-            startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+            // Current month
+            startDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0)
             break
           case 'quarter':
+            // Current quarter
             const quarterMonth = Math.floor(now.getMonth() / 3) * 3
-            startDate = new Date(now.getFullYear(), quarterMonth, 1)
+            startDate = new Date(now.getFullYear(), quarterMonth, 1, 0, 0, 0, 0)
             break
           case 'year':
-            startDate = new Date(now.getFullYear(), 0, 1)
+            // Current year
+            startDate = new Date(now.getFullYear(), 0, 1, 0, 0, 0, 0)
             break
           default:
-            startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+            startDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0)
         }
 
-        const filteredData = data?.filter((booking: any) => 
-          new Date(booking.booking_date) >= startDate
-        ) || []
+        const filteredData = data?.filter((booking: any) => {
+          const bookingDate = new Date(booking.booking_date)
+          return bookingDate >= startDate && bookingDate <= endDate
+        }) || []
 
         return new Response(
           JSON.stringify({ data: filteredData }),
