@@ -57,12 +57,32 @@ Deno.serve(async (req) => {
       }
     )
 
-    const url = new URL(req.url)
-    const endpoint = url.pathname.split('/analytics/')[1]
+    // Handle different request types
+    let endpoint: string
+    let period: string | null = null
+
+    if (req.method === 'GET') {
+      const url = new URL(req.url)
+      endpoint = url.pathname.split('/analytics/')[1]
+      period = url.searchParams.get('period')
+    } else {
+      const body = await req.json()
+      if (body.path) {
+        const [endpointPart, queryPart] = body.path.split('?')
+        endpoint = endpointPart
+        if (queryPart) {
+          const params = new URLSearchParams(queryPart)
+          period = params.get('period')
+        }
+      } else {
+        endpoint = body.endpoint
+        period = body.period
+      }
+    }
 
     switch (endpoint) {
       case 'bookings': {
-        const period = url.searchParams.get('period') || 'month'
+        const periodParam = period || 'month'
         const { data, error } = await supabaseClient
           .from('bookings')
           .select(`
@@ -84,7 +104,7 @@ Deno.serve(async (req) => {
         let startDate: Date
         let endDate: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)
 
-        switch (period) {
+        switch (periodParam) {
           case 'day':
             // Today only
             startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0)

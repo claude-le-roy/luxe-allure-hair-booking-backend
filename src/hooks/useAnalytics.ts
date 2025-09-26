@@ -52,9 +52,9 @@ export const useBookingsAnalytics = (period: TimePeriod) => {
   return useQuery({
     queryKey: ['analytics', 'bookings', period],
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke('analytics/bookings', {
+      const { data, error } = await supabase.functions.invoke('analytics', {
         method: 'GET',
-        body: null,
+        body: { path: `bookings?period=${period}` },
       });
       
       if (error) throw error;
@@ -67,8 +67,9 @@ export const useCompletionAnalytics = () => {
   return useQuery({
     queryKey: ['analytics', 'completion'],
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke('analytics/completion', {
+      const { data, error } = await supabase.functions.invoke('analytics', {
         method: 'GET',
+        body: { path: 'completion' },
       });
       
       if (error) throw error;
@@ -81,8 +82,9 @@ export const useServiceDemandAnalytics = () => {
   return useQuery({
     queryKey: ['analytics', 'service-demand'],
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke('analytics/service-demand', {
+      const { data, error } = await supabase.functions.invoke('analytics', {
         method: 'GET',
+        body: { path: 'service-demand' },
       });
       
       if (error) throw error;
@@ -95,8 +97,9 @@ export const useLocationAnalytics = () => {
   return useQuery({
     queryKey: ['analytics', 'location'],
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke('analytics/location', {
+      const { data, error } = await supabase.functions.invoke('analytics', {
         method: 'GET',
+        body: { path: 'location' },
       });
       
       if (error) throw error;
@@ -109,8 +112,9 @@ export const useDemographicsAnalytics = () => {
   return useQuery({
     queryKey: ['analytics', 'demographics'],
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke('analytics/demographics', {
+      const { data, error } = await supabase.functions.invoke('analytics', {
         method: 'GET',
+        body: { path: 'demographics' },
       });
       
       if (error) throw error;

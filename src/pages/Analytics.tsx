@@ -186,16 +186,6 @@ const Analytics = () => {
           </CardContent>
         </Card>
 
-        {/* Detailed Stats Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {completionData && (
-            <CompletionChart data={completionData} />
-          )}
-          
-          {locationData && (
-            <LocationChart data={locationData} />
-          )}
-        </div>
       </div>
     </div>
   );
