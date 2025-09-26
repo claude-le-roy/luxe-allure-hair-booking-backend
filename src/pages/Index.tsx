@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { BookingCard } from '@/components/BookingCard';
 import { BookingCalendar } from '@/components/BookingCalendar';
 import { BookingSearch } from '@/components/BookingSearch';
-import { useBookings, useSearchBookings } from '@/hooks/useBookings';
+import { useBookings, useGroupedBookings, useSearchBookings } from '@/hooks/useBookings';
 import { Calendar, List, TrendingUp, Clock, CheckCircle, XCircle } from 'lucide-react';
 
 const Index = () => {
@@ -13,9 +13,10 @@ const Index = () => {
   const [searchTerm, setSearchTerm] = useState('');
   
   const { data: allBookings, isLoading, error } = useBookings();
+  const { data: groupedBookings, isLoading: isGroupedLoading } = useGroupedBookings();
   const { data: searchResults } = useSearchBookings(searchTerm);
   
-  const bookings = searchTerm ? (searchResults || []) : (allBookings || []);
+  const bookings = searchTerm ? (searchResults || []) : (groupedBookings || []);
 
   // Calculate stats
   const stats = {
@@ -26,7 +27,7 @@ const Index = () => {
     cancelled: allBookings?.filter(b => b.status === 'cancelled').length || 0,
   };
 
-  if (isLoading) {
+  if (isLoading || isGroupedLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -159,14 +160,17 @@ const Index = () => {
                   </div>
                 ) : (
                   <div className="grid gap-4">
-                    {bookings.map((booking) => (
-                      <BookingCard key={booking.id} booking={booking} />
+                    {bookings.map((groupedBooking) => (
+                      <BookingCard 
+                        key={`${groupedBooking.customer_name}-${groupedBooking.booking_date}`} 
+                        groupedBooking={groupedBooking} 
+                      />
                     ))}
                   </div>
                 )}
               </div>
             ) : (
-              <BookingCalendar bookings={bookings} />
+              <BookingCalendar bookings={allBookings || []} />
             )}
           </CardContent>
         </Card>

@@ -72,6 +72,7 @@ export const useUpdateBookingStatus = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['bookings', 'grouped'] });
       toast({
         title: "Booking Updated",
         description: "Booking status has been updated successfully.",
@@ -84,6 +85,66 @@ export const useUpdateBookingStatus = () => {
         description: "Failed to update booking status.",
         variant: "destructive",
       });
+    },
+  });
+};
+
+export interface GroupedBooking {
+  customer_name: string;
+  customer_email: string;
+  customer_phone: string;
+  booking_date: string;
+  bookings: (Booking & { services?: Partial<Service> })[];
+  total_services: number;
+}
+
+export const useGroupedBookings = () => {
+  return useQuery({
+    queryKey: ['bookings', 'grouped'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('bookings')
+        .select(`
+          *,
+          services (
+            id,
+            name,
+            description,
+            price,
+            duration
+          )
+        `)
+        .order('booking_date', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching bookings:', error);
+        throw error;
+      }
+
+      // Group bookings by customer name and date
+      const grouped = data.reduce((acc: Record<string, GroupedBooking>, booking) => {
+        const key = `${booking.customer_name}-${booking.booking_date}`;
+        
+        if (!acc[key]) {
+          acc[key] = {
+            customer_name: booking.customer_name,
+            customer_email: booking.customer_email,
+            customer_phone: booking.customer_phone,
+            booking_date: booking.booking_date,
+            bookings: [],
+            total_services: 0,
+          };
+        }
+        
+        acc[key].bookings.push(booking);
+        acc[key].total_services += 1;
+        
+        return acc;
+      }, {});
+
+      return Object.values(grouped).sort((a, b) => 
+        new Date(b.booking_date).getTime() - new Date(a.booking_date).getTime()
+      );
     },
   });
 };
@@ -110,7 +171,31 @@ export const useSearchBookings = (searchTerm: string) => {
         .order('booking_date', { ascending: false });
 
       if (error) throw error;
-      return data;
+      
+      // Group search results as well
+      const grouped = data.reduce((acc: Record<string, GroupedBooking>, booking) => {
+        const key = `${booking.customer_name}-${booking.booking_date}`;
+        
+        if (!acc[key]) {
+          acc[key] = {
+            customer_name: booking.customer_name,
+            customer_email: booking.customer_email,
+            customer_phone: booking.customer_phone,
+            booking_date: booking.booking_date,
+            bookings: [],
+            total_services: 0,
+          };
+        }
+        
+        acc[key].bookings.push(booking);
+        acc[key].total_services += 1;
+        
+        return acc;
+      }, {});
+
+      return Object.values(grouped).sort((a, b) => 
+        new Date(b.booking_date).getTime() - new Date(a.booking_date).getTime()
+      );
     },
     enabled: searchTerm.length > 0,
   });
