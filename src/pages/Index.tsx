@@ -7,7 +7,7 @@ import { BookingCard } from '@/components/BookingCard';
 import { BookingCalendar } from '@/components/BookingCalendar';
 import { BookingSearch } from '@/components/BookingSearch';
 import { useBookings, useGroupedBookings, useSearchBookings } from '@/hooks/useBookings';
-import { Calendar, List, TrendingUp, Clock, CheckCircle, XCircle, BarChart3 } from 'lucide-react';
+import { Calendar, List, TrendingUp, Clock, CheckCircle, XCircle, BarChart3, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Index = () => {
@@ -62,6 +62,12 @@ const Index = () => {
               <p className="text-muted-foreground mt-1">Manage your bookings and appointments</p>
             </div>
             <div className="flex items-center gap-2">
+              <Link to="/dashboard">
+                <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to Dashboard
+                </Button>
+              </Link>
               <Link to="/analytics">
                 <Button variant="outline" className="flex items-center gap-2">
                   <BarChart3 className="h-4 w-4" />
