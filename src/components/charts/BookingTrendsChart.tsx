@@ -9,6 +9,20 @@ interface BookingTrendsChartProps {
 }
 
 const BookingTrendsChart = ({ data, period }: BookingTrendsChartProps) => {
+  // Handle empty data
+  if (!data || data.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Booking Trends Over Time</CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center h-[300px] text-muted-foreground">
+          No booking data available for the selected period
+        </CardContent>
+      </Card>
+    );
+  }
+
   const getDateFormatter = (period: TimePeriod) => {
     switch (period) {
       case 'day':
@@ -83,7 +97,16 @@ const BookingTrendsChart = ({ data, period }: BookingTrendsChartProps) => {
               height={60}
             />
             <YAxis />
-            <Tooltip />
+            <Tooltip 
+              contentStyle={{
+                backgroundColor: 'hsl(var(--card))',
+                border: '1px solid hsl(var(--border))',
+                borderRadius: '8px',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}
+            />
             <Line 
               type="monotone" 
               dataKey="bookings" 

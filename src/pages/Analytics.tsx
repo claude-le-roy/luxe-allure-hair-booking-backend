@@ -29,7 +29,7 @@ const Analytics = () => {
   const { data: locationData, isLoading: locationLoading } = useLocationAnalytics();
   const { data: demographicsData, isLoading: demographicsLoading } = useDemographicsAnalytics();
 
-  const isLoading = bookingsLoading || completionLoading || serviceLoading || locationLoading || demographicsLoading;
+  const isLoading = false; // Remove global loading since we handle individual tab loading
 
   if (isLoading) {
     return (
@@ -154,31 +154,45 @@ const Analytics = () => {
               </TabsList>
 
               <TabsContent value="trends" className="mt-6">
-                {bookingsData && (
-                  <BookingTrendsChart data={bookingsData} period={timePeriod} />
-                )}
+                <BookingTrendsChart data={bookingsData || []} period={timePeriod} />
               </TabsContent>
 
               <TabsContent value="completion" className="mt-6">
-                {completionData && (
+                {completionLoading ? (
+                  <div className="flex items-center justify-center h-[300px]">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  </div>
+                ) : (
                   <CompletionChart data={completionData} />
                 )}
               </TabsContent>
 
               <TabsContent value="services" className="mt-6">
-                {serviceData && (
-                  <ServiceDemandChart data={serviceData} />
+                {serviceLoading ? (
+                  <div className="flex items-center justify-center h-[300px]">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  </div>
+                ) : (
+                  <ServiceDemandChart data={serviceData || []} />
                 )}
               </TabsContent>
 
               <TabsContent value="location" className="mt-6">
-                {locationData && (
+                {locationLoading ? (
+                  <div className="flex items-center justify-center h-[300px]">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  </div>
+                ) : (
                   <LocationChart data={locationData} />
                 )}
               </TabsContent>
 
               <TabsContent value="demographics" className="mt-6">
-                {demographicsData && (
+                {demographicsLoading ? (
+                  <div className="flex items-center justify-center h-[300px]">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  </div>
+                ) : (
                   <DemographicsChart data={demographicsData} />
                 )}
               </TabsContent>

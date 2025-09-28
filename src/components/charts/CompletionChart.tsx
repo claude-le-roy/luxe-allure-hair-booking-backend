@@ -14,12 +14,39 @@ const COLORS = {
 };
 
 const CompletionChart = ({ data }: CompletionChartProps) => {
+  // Handle null or undefined data
+  if (!data) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Booking Completion Status</CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center h-[300px] text-muted-foreground">
+          No completion data available
+        </CardContent>
+      </Card>
+    );
+  }
+
   const chartData = [
     { name: 'Completed', value: data.completed, color: COLORS.completed },
     { name: 'Pending', value: data.pending, color: COLORS.pending },
     { name: 'In Progress', value: data.inProgress, color: COLORS.inProgress },
     { name: 'Cancelled', value: data.cancelled, color: COLORS.cancelled },
   ].filter(item => item.value > 0); // Only show items with values greater than 0
+
+  if (chartData.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Booking Completion Status</CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center h-[300px] text-muted-foreground">
+          No bookings found
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>

@@ -12,6 +12,20 @@ const COLORS = {
 };
 
 const LocationChart = ({ data }: LocationChartProps) => {
+  // Handle null or undefined data
+  if (!data) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Service Location Breakdown</CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center h-[300px] text-muted-foreground">
+          No location data available
+        </CardContent>
+      </Card>
+    );
+  }
+
   const chartData = Object.entries(data)
     .map(([location, count]) => ({
       name: location,
@@ -19,6 +33,19 @@ const LocationChart = ({ data }: LocationChartProps) => {
       color: COLORS[location as keyof typeof COLORS],
     }))
     .filter(item => item.value > 0); // Only show locations with bookings
+
+  if (chartData.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Service Location Breakdown</CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center h-[300px] text-muted-foreground">
+          No location data found
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>

@@ -7,8 +7,21 @@ interface ServiceDemandChartProps {
 }
 
 const ServiceDemandChart = ({ data }: ServiceDemandChartProps) => {
-  // Filter out services with zero bookings
-  const filteredData = data.filter(service => service.count > 0);
+  // Filter out services with zero bookings and handle empty data
+  const filteredData = data ? data.filter(service => service.count > 0) : [];
+  
+  if (!data || filteredData.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Most Popular Services</CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center h-[300px] text-muted-foreground">
+          No service data available
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>

@@ -8,12 +8,26 @@ interface DemographicsChartProps {
 }
 
 const DemographicsChart = ({ data }: DemographicsChartProps) => {
-  const ageData = Object.entries(data.ageGroups).map(([age, count]) => ({
+  // Handle null or undefined data
+  if (!data) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Customer Demographics</CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center h-[300px] text-muted-foreground">
+          No demographic data available
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const ageData = Object.entries(data.ageGroups || {}).map(([age, count]) => ({
     category: age,
     count,
   }));
 
-  const locationData = Object.entries(data.locations).map(([location, count]) => ({
+  const locationData = Object.entries(data.locations || {}).map(([location, count]) => ({
     category: location,
     count,
   }));

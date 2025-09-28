@@ -52,14 +52,20 @@ export const useBookingsAnalytics = (period: TimePeriod) => {
   return useQuery({
     queryKey: ['analytics', 'bookings', period],
     queryFn: async () => {
+      console.log('Fetching bookings analytics for period:', period);
       const { data, error } = await supabase.functions.invoke('analytics', {
-        method: 'GET',
         body: { path: `bookings?period=${period}` },
       });
       
-      if (error) throw error;
+      console.log('Analytics response:', { data, error });
+      if (error) {
+        console.error('Analytics error:', error);
+        throw error;
+      }
       return data.data as BookingData[];
     },
+    retry: 2,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };
 
@@ -67,14 +73,20 @@ export const useCompletionAnalytics = () => {
   return useQuery({
     queryKey: ['analytics', 'completion'],
     queryFn: async () => {
+      console.log('Fetching completion analytics');
       const { data, error } = await supabase.functions.invoke('analytics', {
-        method: 'GET',
         body: { path: 'completion' },
       });
       
-      if (error) throw error;
+      console.log('Completion response:', { data, error });
+      if (error) {
+        console.error('Completion error:', error);
+        throw error;
+      }
       return data as CompletionStats;
     },
+    retry: 2,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };
 
@@ -82,14 +94,20 @@ export const useServiceDemandAnalytics = () => {
   return useQuery({
     queryKey: ['analytics', 'service-demand'],
     queryFn: async () => {
+      console.log('Fetching service demand analytics');
       const { data, error } = await supabase.functions.invoke('analytics', {
-        method: 'GET',
         body: { path: 'service-demand' },
       });
       
-      if (error) throw error;
+      console.log('Service demand response:', { data, error });
+      if (error) {
+        console.error('Service demand error:', error);
+        throw error;
+      }
       return data as ServiceDemand[];
     },
+    retry: 2,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };
 
@@ -97,14 +115,20 @@ export const useLocationAnalytics = () => {
   return useQuery({
     queryKey: ['analytics', 'location'],
     queryFn: async () => {
+      console.log('Fetching location analytics');
       const { data, error } = await supabase.functions.invoke('analytics', {
-        method: 'GET',
         body: { path: 'location' },
       });
       
-      if (error) throw error;
+      console.log('Location response:', { data, error });
+      if (error) {
+        console.error('Location error:', error);
+        throw error;
+      }
       return data as LocationStats;
     },
+    retry: 2,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };
 
@@ -112,13 +136,19 @@ export const useDemographicsAnalytics = () => {
   return useQuery({
     queryKey: ['analytics', 'demographics'],
     queryFn: async () => {
+      console.log('Fetching demographics analytics');
       const { data, error } = await supabase.functions.invoke('analytics', {
-        method: 'GET',
         body: { path: 'demographics' },
       });
       
-      if (error) throw error;
+      console.log('Demographics response:', { data, error });
+      if (error) {
+        console.error('Demographics error:', error);
+        throw error;
+      }
       return data as Demographics;
     },
+    retry: 2,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };
