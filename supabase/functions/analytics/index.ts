@@ -146,21 +146,37 @@ Deno.serve(async (req) => {
       }
 
       case 'completion': {
+        // Use aggregated query for better performance
         const { data, error } = await supabaseClient
-          .from('bookings')
-          .select('status')
+          .rpc('get_completion_stats')
+          
+        if (error) {
+          // Fallback to manual calculation if RPC doesn't exist
+          console.warn('RPC get_completion_stats not found, using fallback')
+          const { data: bookingData, error: bookingError } = await supabaseClient
+            .from('bookings')
+            .select('status')
 
-        if (error) throw error
+          if (bookingError) throw bookingError
 
-        const completionStats = {
-          completed: data?.filter((b: any) => b.status === 'completed').length || 0,
-          pending: data?.filter((b: any) => b.status === 'pending').length || 0,
-          inProgress: data?.filter((b: any) => b.status === 'in-progress').length || 0,
-          cancelled: data?.filter((b: any) => b.status === 'cancelled').length || 0,
+          const completionStats = {
+            completed: bookingData?.filter((b: any) => b.status === 'completed').length || 0,
+            pending: bookingData?.filter((b: any) => b.status === 'pending').length || 0,
+            inProgress: bookingData?.filter((b: any) => b.status === 'in-progress').length || 0,
+            cancelled: bookingData?.filter((b: any) => b.status === 'cancelled').length || 0,
+          }
+
+          return new Response(
+            JSON.stringify(completionStats),
+            { 
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              status: 200 
+            }
+          )
         }
 
         return new Response(
-          JSON.stringify(completionStats),
+          JSON.stringify(data[0] || { completed: 0, pending: 0, inProgress: 0, cancelled: 0 }),
           { 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             status: 200 
@@ -169,26 +185,30 @@ Deno.serve(async (req) => {
       }
 
       case 'service-demand': {
+        // Use optimized query with aggregation
         const { data, error } = await supabaseClient
           .from('bookings')
           .select(`
             service_id,
-            services (
+            services!inner (
               name
             )
           `)
 
         if (error) throw error
 
-        const serviceCounts: Record<string, number> = {}
+        // Use Map for better performance with large datasets
+        const serviceCounts = new Map<string, number>()
+        
         data?.forEach(booking => {
           const serviceName = (booking as any).services?.name || 'Unknown Service'
-          serviceCounts[serviceName] = (serviceCounts[serviceName] || 0) + 1
+          serviceCounts.set(serviceName, (serviceCounts.get(serviceName) || 0) + 1)
         })
 
-        const serviceData = Object.entries(serviceCounts)
+        const serviceData = Array.from(serviceCounts.entries())
           .map(([name, count]) => ({ name, count }))
           .sort((a, b) => b.count - a.count)
+          .slice(0, 10) // Limit to top 10 services for better performance
 
         return new Response(
           JSON.stringify(serviceData),

@@ -16,31 +16,30 @@ import ServiceDemandChart from '@/components/charts/ServiceDemandChart';
 import LocationChart from '@/components/charts/LocationChart';
 import BookingTrendsChart from '@/components/charts/BookingTrendsChart';
 import DemographicsChart from '@/components/charts/DemographicsChart';
-import { BarChart3, TrendingUp, Users, MapPin, Calendar, ArrowLeft } from 'lucide-react';
+import ChartSkeleton from '@/components/charts/ChartSkeleton';
+import { BarChart3, TrendingUp, Users, MapPin, Calendar, ArrowLeft, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const Analytics = () => {
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('month');
   
-  const { data: bookingsData, isLoading: bookingsLoading } = useBookingsAnalytics(timePeriod);
-  const { data: completionData, isLoading: completionLoading } = useCompletionAnalytics();
-  const { data: serviceData, isLoading: serviceLoading } = useServiceDemandAnalytics();
-  const { data: locationData, isLoading: locationLoading } = useLocationAnalytics();
-  const { data: demographicsData, isLoading: demographicsLoading } = useDemographicsAnalytics();
+  const { data: bookingsData, isLoading: bookingsLoading, isFetching: bookingsFetching, refetch: refetchBookings } = useBookingsAnalytics(timePeriod);
+  const { data: completionData, isLoading: completionLoading, isFetching: completionFetching, refetch: refetchCompletion } = useCompletionAnalytics();
+  const { data: serviceData, isLoading: serviceLoading, isFetching: serviceFetching, refetch: refetchServices } = useServiceDemandAnalytics();
+  const { data: locationData, isLoading: locationLoading, isFetching: locationFetching, refetch: refetchLocation } = useLocationAnalytics();
+  const { data: demographicsData, isLoading: demographicsLoading, isFetching: demographicsFetching, refetch: refetchDemographics } = useDemographicsAnalytics();
 
-  const isLoading = false; // Remove global loading since we handle individual tab loading
+  const isAnyFetching = bookingsFetching || completionFetching || serviceFetching || locationFetching || demographicsFetching;
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="text-muted-foreground">Loading analytics...</p>
-        </div>
-      </div>
-    );
-  }
+  const handleRefreshAll = () => {
+    refetchBookings();
+    refetchCompletion();
+    refetchServices();
+    refetchLocation();
+    refetchDemographics();
+  };
 
   const totalBookings = bookingsData?.length || 0;
   const completedRate = completionData ? 
@@ -66,6 +65,16 @@ const Analytics = () => {
               </div>
             </div>
             <div className="flex items-center gap-4">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleRefreshAll}
+                disabled={isAnyFetching}
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className={`h-4 w-4 ${isAnyFetching ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
               <Select value={timePeriod} onValueChange={(value: TimePeriod) => setTimePeriod(value)}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Select period" />
@@ -86,50 +95,66 @@ const Analytics = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Key Metrics */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="bg-gradient-to-br from-violet-50 to-violet-100 border-violet-200">
+          <Card className="bg-gradient-to-br from-violet-50 to-violet-100 border-violet-200 dark:from-violet-950 dark:to-violet-900 dark:border-violet-800">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-violet-800">Total Bookings</p>
-                  <p className="text-2xl font-bold text-violet-900">{totalBookings}</p>
+                  <p className="text-sm font-medium text-violet-800 dark:text-violet-200">Total Bookings</p>
+                  {bookingsLoading ? (
+                    <Skeleton className="h-8 w-16" />
+                  ) : (
+                    <p className="text-2xl font-bold text-violet-900 dark:text-violet-100">{totalBookings}</p>
+                  )}
                 </div>
-                <Calendar className="h-8 w-8 text-violet-600" />
+                <Calendar className="h-8 w-8 text-violet-600 dark:text-violet-400" />
               </div>
             </CardContent>
           </Card>
           
-          <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 border-emerald-200">
+          <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 border-emerald-200 dark:from-emerald-950 dark:to-emerald-900 dark:border-emerald-800">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-emerald-800">Completion Rate</p>
-                  <p className="text-2xl font-bold text-emerald-900">{completedRate}%</p>
+                  <p className="text-sm font-medium text-emerald-800 dark:text-emerald-200">Completion Rate</p>
+                  {completionLoading ? (
+                    <Skeleton className="h-8 w-16" />
+                  ) : (
+                    <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">{completedRate}%</p>
+                  )}
                 </div>
-                <TrendingUp className="h-8 w-8 text-emerald-600" />
+                <TrendingUp className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
               </div>
             </CardContent>
           </Card>
           
-          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 dark:from-blue-950 dark:to-blue-900 dark:border-blue-800">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-blue-800">Popular Services</p>
-                  <p className="text-2xl font-bold text-blue-900">{serviceData?.length || 0}</p>
+                  <p className="text-sm font-medium text-blue-800 dark:text-blue-200">Popular Services</p>
+                  {serviceLoading ? (
+                    <Skeleton className="h-8 w-16" />
+                  ) : (
+                    <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{serviceData?.length || 0}</p>
+                  )}
                 </div>
-                <BarChart3 className="h-8 w-8 text-blue-600" />
+                <BarChart3 className="h-8 w-8 text-blue-600 dark:text-blue-400" />
               </div>
             </CardContent>
           </Card>
           
-          <Card className="bg-gradient-to-br from-pink-50 to-pink-100 border-pink-200">
+          <Card className="bg-gradient-to-br from-pink-50 to-pink-100 border-pink-200 dark:from-pink-950 dark:to-pink-900 dark:border-pink-800">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-pink-800">Locations</p>
-                  <p className="text-2xl font-bold text-pink-900">2</p>
+                  <p className="text-sm font-medium text-pink-800 dark:text-pink-200">Locations</p>
+                  {locationLoading ? (
+                    <Skeleton className="h-8 w-16" />
+                  ) : (
+                    <p className="text-2xl font-bold text-pink-900 dark:text-pink-100">2</p>
+                  )}
                 </div>
-                <MapPin className="h-8 w-8 text-pink-600" />
+                <MapPin className="h-8 w-8 text-pink-600 dark:text-pink-400" />
               </div>
             </CardContent>
           </Card>
@@ -154,14 +179,16 @@ const Analytics = () => {
               </TabsList>
 
               <TabsContent value="trends" className="mt-6">
-                <BookingTrendsChart data={bookingsData || []} period={timePeriod} />
+                {bookingsLoading ? (
+                  <ChartSkeleton title="Booking Trends Over Time" />
+                ) : (
+                  <BookingTrendsChart data={bookingsData || []} period={timePeriod} />
+                )}
               </TabsContent>
 
               <TabsContent value="completion" className="mt-6">
                 {completionLoading ? (
-                  <div className="flex items-center justify-center h-[300px]">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                  </div>
+                  <ChartSkeleton title="Booking Completion Status" />
                 ) : (
                   <CompletionChart data={completionData} />
                 )}
@@ -169,9 +196,7 @@ const Analytics = () => {
 
               <TabsContent value="services" className="mt-6">
                 {serviceLoading ? (
-                  <div className="flex items-center justify-center h-[300px]">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                  </div>
+                  <ChartSkeleton title="Most Popular Services" />
                 ) : (
                   <ServiceDemandChart data={serviceData || []} />
                 )}
@@ -179,9 +204,7 @@ const Analytics = () => {
 
               <TabsContent value="location" className="mt-6">
                 {locationLoading ? (
-                  <div className="flex items-center justify-center h-[300px]">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                  </div>
+                  <ChartSkeleton title="Service Location Breakdown" />
                 ) : (
                   <LocationChart data={locationData} />
                 )}
@@ -189,9 +212,7 @@ const Analytics = () => {
 
               <TabsContent value="demographics" className="mt-6">
                 {demographicsLoading ? (
-                  <div className="flex items-center justify-center h-[300px]">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                  </div>
+                  <ChartSkeleton title="Customer Demographics" />
                 ) : (
                   <DemographicsChart data={demographicsData} />
                 )}

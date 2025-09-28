@@ -58,6 +58,11 @@ const ServiceDemandChart = ({ data }: ServiceDemandChartProps) => {
                 fontSize: '14px',
                 fontWeight: '500'
               }}
+              formatter={(value, name) => [
+                `${value} bookings`,
+                'Total Bookings'
+              ]}
+              labelFormatter={(label) => `Service: ${label}`}
             />
             <Bar dataKey="count" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
           </BarChart>

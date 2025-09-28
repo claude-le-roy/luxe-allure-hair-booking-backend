@@ -65,7 +65,10 @@ export const useBookingsAnalytics = (period: TimePeriod) => {
       return data.data as BookingData[];
     },
     retry: 2,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 3, // 3 minutes
+    refetchInterval: 1000 * 60 * 2, // Auto-refresh every 2 minutes
+    refetchIntervalInBackground: true, // Continue refreshing in background
+    refetchOnWindowFocus: true, // Refresh when window gains focus
   });
 };
 
@@ -87,6 +90,9 @@ export const useCompletionAnalytics = () => {
     },
     retry: 2,
     staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchInterval: 1000 * 60 * 2, // Auto-refresh every 2 minutes
+    refetchIntervalInBackground: true,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -108,6 +114,9 @@ export const useServiceDemandAnalytics = () => {
     },
     retry: 2,
     staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchInterval: 1000 * 60 * 2, // Auto-refresh every 2 minutes
+    refetchIntervalInBackground: true,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -129,6 +138,9 @@ export const useLocationAnalytics = () => {
     },
     retry: 2,
     staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchInterval: 1000 * 60 * 2, // Auto-refresh every 2 minutes
+    refetchIntervalInBackground: true,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -150,5 +162,8 @@ export const useDemographicsAnalytics = () => {
     },
     retry: 2,
     staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchInterval: 1000 * 60 * 2, // Auto-refresh every 2 minutes
+    refetchIntervalInBackground: true,
+    refetchOnWindowFocus: true,
   });
 };

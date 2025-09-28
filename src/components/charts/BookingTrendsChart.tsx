@@ -106,6 +106,11 @@ const BookingTrendsChart = ({ data, period }: BookingTrendsChartProps) => {
                 fontSize: '14px',
                 fontWeight: '500'
               }}
+              formatter={(value, name) => [
+                `${value} bookings`,
+                'Bookings'
+              ]}
+              labelFormatter={(label) => `Period: ${label}`}
             />
             <Line 
               type="monotone" 
